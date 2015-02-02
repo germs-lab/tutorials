@@ -9,9 +9,9 @@ Welcome to Pandaseq Tutorial's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   tutorial/index.txt
+   tutorial/index
 
 Indices and tables
 ==================
