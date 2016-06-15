@@ -51,6 +51,7 @@ sp$P
 ```
 #####Note:
 a. rho value ranges from -1 to 1, with 0 as no correlation at all, -1 as greatly negatively correlated, and 1 as strongly positively correlated.
+
 b. Spearman's correlation says that x and y do not have a significant relationship.
 
 ###2. Let's simulate a linear relationship:
@@ -61,6 +62,7 @@ plot(y~x)
 ```
 #####Quick Exercise: 
 a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+
 b. What if you change the method "spearman" to "pearson"?
 
 ###3. Let's simulate a non-linear but monotonic relationship:
@@ -71,6 +73,7 @@ plot (y ~ x)
 ```
 #####Quick Exercise: 
 a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+
 b. What if you change the method "spearman" to "pearson"?
 
 ###4. Let's simulate a non-monotonic relationship:
@@ -81,7 +84,9 @@ plot (y ~ x)
 ```
 ##### Quick Exercise: 
 a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+
 b. What if you change the method "spearman" to "pearson"?
+
 c. now try: `hoeffd(x, y)`, what do you get?
 
 #####What is happening?
