@@ -5,8 +5,9 @@
 ##Packages required:
 ```
 library(Hmisc)
-library(plyr)
 library(reshape2)
+library(igraph)
+library(sna)
 ```
 
 ###1. Let's simulate a simple set of data:
