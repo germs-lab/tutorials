@@ -9,89 +9,89 @@ library(plyr)
 library(reshape2)
 ```
 
-1. Let's simulate a simple set of data:
+###1. Let's simulate a simple set of data:
 ```
 ## a vector of 100 randomly normally distributed values with a mean of 1, standard deviation of 9.  
 x<-rnorm(100, mean=1, sd=9)
 ## a vector of 100 randomly normally distributed values with a mean of 14, standard deviation of 9.  
-y<-0+rnorm(100, mean=14, sd=9)
+y<-rnorm(100, mean=14, sd=9)
 ## a quick plot to check the relationship between x and y
 plot(y~x)
 ```
-### We can easily see that these two vectors are very much independent of each other.
-### But what would the statisics say?
+We can easily see that these two vectors are very much independent of each other.
+But what would the statisics say?
 ```
 ## let's run a quick Spearman's correlation analysis:
 sp<-rcorr(x, y, "spearman")
 sp
 ```
-### Here is the results:
-#### the x to y relationship (spearman's coefficient rho)  matrix:
+Here is the results:
+a. the x to y relationship (spearman's coefficient rho)  matrix:
 ```
      x    y
 x 1.00 0.17
 y 0.17 1.00
 ```
-#### the number of replicates:
+b. the number of replicates:
 ```
 n= 100 
 ```
-#### the p value:
+c. the p value:
 ```
 P
   x     y    
 x       0.082
 y 0.082   
 ```
-### also try and what do you get?
+d. also try these and what do you get?
 ```
 sp$r
 sp$n
 sp$P
 ```
+#####Note:
+a. rho value ranges from -1 to 1, with 0 as no correlation at all, -1 as greatly negatively correlated, and 1 as strongly positively correlated.
+b. Spearman's correlation says that x and y do not have a significant relationship.
 
-### rho value ranges from -1 to 1, with 0 as no correlation at all, -1 as greatly negatively correlated, and 1 as strongly positively correlated.
-### Spearman's correlation says that x and y do not have a significant relationship.
-
-2. Let's simulate a linear relationship:
+###2. Let's simulate a linear relationship:
 ```
 x<-rnorm(100, mean=1, sd=9)
 y = rnorm(100, mean=17, sd=5) +0.8*x
 plot(y~x)
 ```
-### Quick Exercise: 
-### a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
-### b. What if you change the method "spearman" to "pearson"?
+#####Quick Exercise: 
+a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+b. What if you change the method "spearman" to "pearson"?
 
-3. Let's simulate a non-linear but monotonic relationship:
+###3. Let's simulate a non-linear but monotonic relationship:
 ```
 x <- rnorm(100, mean=1, sd=9)
 y <- rnorm(100, mean=800, sd=1000) + x^3
 plot (y ~ x)
 ```
-### Quick Exercise: 
-### a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
-### b. What if you change the method "spearman" to "pearson"?
+#####Quick Exercise: 
+a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+b. What if you change the method "spearman" to "pearson"?
 
-4. Let's simulate a non-monotonic relationship:
+###4. Let's simulate a non-monotonic relationship:
 ```
 x <- rnorm(100, mean=1, sd=9)
 y <-  rnorm(100, mean=100, sd=100) - x^2
 plot (y ~ x)
 ```
-### Quick Exercise: 
-### a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
-### b. What if you change the method "spearman" to "pearson"?
-### c. now try: `hoeffd(x, y)`, what do you get?
+##### Quick Exercise: 
+a. What's the Spearman correlation coefficient of x and y? Are they significant (p value cutoff at 0.05)
+b. What if you change the method "spearman" to "pearson"?
+c. now try: `hoeffd(x, y)`, what do you get?
 
-##What is happening?
-###1. Spearman's rank correlation is very robust, but it assumes monotonic relationships  
-###2. Pearson correlation detects linear relationship, which is a special case of monotonic relationship   
-###3. Hoeffding's D evaluates the dependence of two datasets. It ranges from -1 to 1, the smaller the value (e.g, -1), the less the two data were dependent of each other.    
-###4. Real world data (e.g., microbial populations) are frequently monotonic and non-monotonic. Evaluate relationships with both Spearman's correlation and Hoeffding dependence test. Pay attention to relationships with high Hoeffding's D and low Spearman's rho. 
+#####What is happening?
+1. Spearman's rank correlation is very robust, but it assumes monotonic relationships  
+2. Pearson correlation detects linear relationship, which is a special case of monotonic relationship   
+3. Hoeffding's D evaluates the dependence of two datasets. It ranges from -1 to 1, the smaller the value (e.g, -1), the less the two data were dependent of each other.    
+4. Real world data (e.g., microbial populations) are frequently monotonic and non-monotonic. Evaluate relationships with both Spearman's correlation and Hoeffding dependence test. Pay attention to relationships with high Hoeffding's D and low Spearman's rho. 
 
 
-5. Let's put simulated data together:
+###5. Let's put simulated data together:
 ```
 x <- rnorm(100, mean=1, sd=9)
 independent<-0+rnorm(100, mean=14, sd=9)
@@ -138,9 +138,9 @@ results<-merge(sp_merged, ds_merged, by=c("Var1", "Var2"))
 # subsetting for p value < 0.05, either spearman adj.p or hoeffding adj.p
 final_results<-subset(results, spearman_qval < 0.05 | hoeffding_qval < 0.05)
 ```
-### What does final_results look like? Which relationship is the strongest?
+##### What does final_results look like? Which relationship is the strongest?
 
-6. From relationships to network statistics. See `http://jfaganuk.github.io/2015/01/24/basic-network-analysis/` for detailed explanations.
+###6. From relationships to network statistics. See `http://jfaganuk.github.io/2015/01/24/basic-network-analysis/` for detailed explanations.
 ```
 library(igraph)
 library(sna)
@@ -204,7 +204,7 @@ efsize_avg<-mean(effective.size(temp.graph, mode = "all"))
 test<-cbind(N_nodes, N_edges, N_clusters, Max_csize, Max_c_edges, g.density, g.pathlength.avg, betcent, degcent, g.mod, efsize_avg)
 ```
 
-7. Plot it!
+###7. Plot it!
 ```
 plot(temp.graph)
 ```
