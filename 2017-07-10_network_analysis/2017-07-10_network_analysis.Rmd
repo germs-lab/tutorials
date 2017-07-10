@@ -7,7 +7,7 @@ date: July 11, 2017
 ```{r global_options, include=FALSE}
 library(knitr)
 library(rmarkdown)
-opts_knit$set(root.dir='/Users/fanyang/Box Sync/Mexico/maurilia/data_for_R/')
+opts_knit$set(root.dir='~/Documents/repos/tutorials/2017-07-10_network_analysis')
 opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
 ```
 
