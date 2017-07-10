@@ -25,9 +25,10 @@ library(Hmisc)
 library(reshape2)
 library(igraph)
 library(sna)
+library(RColorBrewer)
 ```
 
-## 1. Simulating a set of data for 4 types of relationship: 
+## 2. Simulating a set of data for 4 types of relationship: 
 ```{r}
 set.seed(35)
 x <- rnorm(100, mean=1, sd=9)
@@ -44,7 +45,7 @@ df<-data.frame(id, type, x, independent, linear, monotonic, non.mono)
 head(df)
 ```
 
-## 2. Evaluate their relationships:
+## 3. Evaluate their relationships:
 ```{r}
 results_sp<-rcorr(as.matrix(df[, 3:7]),type="spearman")
 results_hd<-hoeffd(as.matrix(df[, 3:7])) 
@@ -73,15 +74,158 @@ d.melt<-na.omit(melt(ds))
 names(rho.melt)[3]<-"rho"
 names(d.melt)[3]<-"D"
 
-#merging together  then subset
+#merging and subset for significant coefficients
 sp_merged<-merge(sp_melt,rho.melt,by=c("Var1","Var2"))
 ds_merged<-merge(ds_melt, d.melt,by=c("Var1","Var2"))
 merged<-merge(sp_merged, ds_merged, by=c("Var1", "Var2"))
-
 #subset for significant relationships
-final_results<-subset(merged, spearman_qval < 0.05 | spearman_qval >= 0.05 & hoeffding_qval < 0.05 | is.na(spearman_qval) | is.na(hoeffding_qval))
+merged<-subset(merged, spearman_qval < 0.05 | spearman_qval >= 0.05 & hoeffding_qval < 0.05 | !is.na(spearman_qval) | !is.na(hoeffding_qval))
 
-head(merged)
+#because both rho and D are coefficient, we can combine them
+merged$coefficient_type <- ifelse(abs(merged$rho) > abs(merged$D), "rho", "D")
+merged$coefficient <- ifelse(merged$coefficient_type == colnames(merged)[5], merged$rho, merged$D)
+
+#remove 
+final_results <- merged[, c("Var1", "Var2", "coefficient", "coefficient_type")]
+head(final_results)
 ```
 
+## 4. Network graphs
+### 4.1. the edges: 
+#### 4.1.1. the base:
+```{r}
+# turn relationships into a network graph
+# the relationships here are undirected
+temp.graph<-graph.edgelist(as.matrix(final_results[,c(1,2)]),directed=FALSE)
+# E() assigns edge atributes
+E(temp.graph)
+E(temp.graph)$weight<-abs(final_results$coefficient)
+```
+
+#### 4.1.2. the most basic plot:
+```{r}
+plot(temp.graph)
+# add some graph attributes
+plot(temp.graph, vertex.size = 5, edge.width=E(temp.graph)$weight)
+```
+
+#### 4.1.3. the simplified plot:
+```{r}
+# because our network is undirected, every relationship is duplicated. "simplify" removes duplicated nodes and edges
+temp.simplified<-simplify(temp.graph, edge.attr.comb="mean")
+    # by default, it would use "sum"
+plot(temp.simplified, edge.width=E(temp.simplified)$weight)
+```
+
+#### 4.1.4. we can exaggerate the line thickness:
+```{r}
+E(temp.simplified)$weight <- E(temp.simplified)$weight * 10
+plot(temp.simplified, edge.width=E(temp.simplified)$weight)
+```
+
+#### 4.1.5. and reposition the nodes
+```{r}
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle)
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_as_tree)
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_nicely)
+# more here: http://igraph.org/r/doc/layout_.html
+```
+
+#### 4.1.6. we can assign different line styles to positive and negative coefficients:
+```{r}
+E(temp.graph)$coefficient <- final_results$coefficient
+E(temp.graph)$lty <- ifelse(E(temp.graph)$coefficient > 0, 1, 2)
+temp.simplified<-simplify(temp.graph, edge.attr.comb="mean")
+E(temp.simplified)$lty <- ifelse(E(temp.simplified)$coefficient > 0, 1, 2)
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle, edge.lty = E(temp.simplified)$lty)
+```
+
+#### 4.1.7. we can assign different colors to positive and negative coefficients as well:
+```{r}
+E(temp.simplified)$colors <- ifelse(E(temp.simplified)$coefficient > 0, "black", "red")
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle, edge.lty = E(temp.simplified)$lty, edge.color = E(temp.simplified)$colors)
+```
+
+### 4.2. the vertexes (nodes)
+similar to the edges, we can use `ifelse` to directly assign attributes to the nodes. But a lot of times, it's much easier to assigned attributes from a table format.
+#### 4.2.1. get the names and their corresponding order:
+```{r}
+df <- data.frame(V(temp.simplified)$name)
+df
+```
+
+#### 4.2.2. we can use `RColorBrewer` to generate colors:
+```{r}
+colorCount <- length(unique(df[, 1]))
+getPalette <- colorRampPalette(brewer.pal(8, "Dark2"))
+df$colors <- getPalette(colorCount)
+V(temp.simplified)$colors <- df$colors
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle, edge.lty = E(temp.simplified)$lty, edge.color = E(temp.simplified)$colors, vertex.color = V(temp.simplified)$colors)
+```
+
+#### 4.2.3. we can remove the node labels and add a legend:
+```{r}
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle, edge.lty = E(temp.simplified)$lty, edge.color = E(temp.simplified)$colors, vertex.color = V(temp.simplified)$colors, vertex.label=NA)
+legend(x=-1.5, y=-1.1, df[, 1], pch=21, col="black", pt.bg=df$colors, pt.cex=2, cex=.8, bty="n", ncol=1)
+```
+
+#### 4.2.4. we can update the node boarder color:
+```{r}
+V(temp.simplified)$frame.color <- df$colors
+plot(temp.simplified, edge.width=E(temp.simplified)$weight, layout=layout_in_circle, edge.lty = E(temp.simplified)$lty, edge.color = E(temp.simplified)$colors, vertex.color = V(temp.simplified)$colors, vertex.frame.color = V(temp.simplified)$frame.color, vertex.label=NA)
+legend(x=-1.5, y=-1.1, df[, 1], pch=21, col=df$colors, pt.bg=df$colors, pt.cex=2, cex=.8, bty="n", ncol=1)
+```
+
+## 5. Basic stats:
+```{r}
+# number of nodes
+N_nodes<-vcount(temp.graph)
+# number of edges
+N_edges<-ecount(temp.graph)
+
+# how well do our network cluster?
+g.components <- clusters(temp.graph)
+# number of clusters
+N_clusters<-g.components$no
+# size of the largest cluster in the network
+Max_csize<-max(g.components$csize)
+# and the number of edges associated with
+Max_c_edges<-ecount(induced.subgraph(temp.graph, which(g.components$membership == which.max(g.components$csize))))
+
+# the number of edges in a network divided by the total number of possible edges
+g.density<-graph.density(temp.graph)
+
+# the paths around the network on average
+g.pathlength.avg<-average.path.length(temp.graph)
+
+# centrality: how connected is the network?
+# by betweenness: the number of shortest paths from all nodes to all others that pass through that node.
+betcent<-centralization.betweenness(temp.graph)$centralization
+# by degree: the number of edges a node has.
+degcent<-centralization.degree(temp.graph)$centralization
+
+# modularity: are nodes connected within their clusters (modules) more than between clusters than they would by chance?
+g.mod<-modularity(edge.betweenness.community(temp.graph))
+
+# effective size: the number of relathips between a node and other unrelated nodes
+## effective size function ##
+# definite a function like this
+ego.effective.size <- function(g, ego, ...) {
+  egonet <- induced.subgraph(g, neighbors(g, ego, ...))
+  n <- vcount(egonet)
+  t <- ecount(egonet)
+  return(n - (2 * t) / n)
+}
+effective.size <- function(g, ego=NULL, ...) {
+  if(!is.null(ego)) {
+    return(ego.effective.size(g, ego, ...))
+  }
+  return (sapply(V(g), function(x) {ego.effective.size(g,x, ...)}))
+}
+# calculate average effective size
+efsize_avg<-mean(effective.size(temp.graph, mode = "all"))
+
+# combine them together
+test<-cbind(N_nodes, N_edges, N_clusters, Max_csize, Max_c_edges, g.density, g.pathlength.avg, betcent, degcent, g.mod, efsize_avg)
+```
 
