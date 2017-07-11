@@ -35,7 +35,7 @@ x <- rnorm(100, mean=1, sd=9)
 independent<-0+rnorm(100, mean=14, sd=9)
 linear <- rnorm(100, mean=17, sd=5) +0.8*x
 monotonic <- rnorm(100, mean=800, sd=1000) + x^3
-non.mono <-  rnorm(100, mean=100, sd=100) - x^2
+non.mono <-  rnorm(100, mean=1000, sd=20) - x^2
 
 #put them all together
 df<-data.frame(x, independent, linear, monotonic, non.mono)
@@ -235,6 +235,7 @@ g.pathlength.avg
 
 ### 5.5. centrality: 
 how connected is the network?
+
 #### 5.5.1. by betweenness: the number of shortest paths from all nodes to all others that pass through that node.
 ```{r}
 betcent<-centralization.betweenness(temp.graph)$centralization
