@@ -64,8 +64,8 @@ plot(non.mono ~ x, data = df)
 
 ## 3. Evaluate their relationships:
 ```{r}
-results_sp<-rcorr(as.matrix(df[, 3:7]),type="spearman")
-results_hd<-hoeffd(as.matrix(df[, 3:7])) 
+results_sp<-rcorr(as.matrix(df),type="spearman")
+results_hd<-hoeffd(as.matrix(df)) 
 
 #make two seperate objects for p-value and correlation coefficients
 rhos<-results_sp$r
