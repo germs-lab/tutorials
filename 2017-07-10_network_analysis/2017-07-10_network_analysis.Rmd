@@ -27,7 +27,9 @@ library(igraph)
 library(sna)
 library(RColorBrewer)
 ```
-
+## NOTE:
+Many people also like to use `GGally`, `intergraph`, and `ggnet2` for generating network plots with more of a ggplot feel. I started there and found them making network plotting more confusing and lots of times unecessary. Therefore, I am not introducing them, but you are more than welcome to explore [here](https://briatte.github.io/ggnet/)
+ 
 ## 2. Simulating a set of data for 4 types of relationship: 
 ```{r}
 set.seed(35)
