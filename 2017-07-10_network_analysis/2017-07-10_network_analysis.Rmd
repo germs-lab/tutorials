@@ -256,7 +256,8 @@ g.mod
 ```
 
 ### 5.7. effective size: 
-the number of relationships between a node and other unrelated nodes
+the number of relationships between a node and other unrelated nodes OR
+the value of the network   
 ```{r}
 ## effective size function ##
 # definite a function like this
