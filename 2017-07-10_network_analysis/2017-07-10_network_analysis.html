@@ -367,43 +367,70 @@ legend(x = -1.5, y = -1.1, df[, 1], pch = 21, col = df$colors,
 </div>
 <div id="basic-network-stats" class="section level2">
 <h2>5. Basic network stats:</h2>
+<div id="number-of-nodes-and-edges" class="section level3">
+<h3>5.1. number of nodes and edges:</h3>
 <pre class="r"><code># number of nodes
 N_nodes &lt;- vcount(temp.graph)
-# number of edges
+N_nodes</code></pre>
+<pre><code>## [1] 5</code></pre>
+<pre class="r"><code># number of edges
 N_edges &lt;- ecount(temp.graph)
-
-# how well do our network cluster?
+N_edges</code></pre>
+<pre><code>## [1] 20</code></pre>
+</div>
+<div id="how-well-do-our-network-cluster" class="section level3">
+<h3>5.2. how well do our network cluster?</h3>
+<pre class="r"><code># number of clusters
 g.components &lt;- clusters(temp.graph)
-# number of clusters
 N_clusters &lt;- g.components$no
-# size of the largest cluster in the network
+N_clusters</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code># size of the largest cluster in the network
 Max_csize &lt;- max(g.components$csize)
-# and the number of edges associated with
+Max_csize</code></pre>
+<pre><code>## [1] 5</code></pre>
+<pre class="r"><code># and the number of edges associated with
 Max_c_edges &lt;- ecount(induced.subgraph(temp.graph, which(g.components$membership == 
     which.max(g.components$csize))))
-
-# the number of edges in a network divided by the total
-# number of possible edges
-g.density &lt;- graph.density(temp.graph)
-
-# the paths around the network on average
-g.pathlength.avg &lt;- average.path.length(temp.graph)
-
-# centrality: how connected is the network?  by betweenness:
-# the number of shortest paths from all nodes to all others
-# that pass through that node.
-betcent &lt;- centralization.betweenness(temp.graph)$centralization
-# by degree: the number of edges a node has.
-degcent &lt;- centralization.degree(temp.graph)$centralization
-
-# modularity: are nodes connected within their clusters
-# (modules) more than between clusters than they would by
-# chance?
-g.mod &lt;- modularity(edge.betweenness.community(temp.graph))
-
-# effective size: the number of relationships between a node
-# and other unrelated nodes effective size function ##
-# definite a function like this
+Max_c_edges</code></pre>
+<pre><code>## [1] 20</code></pre>
+</div>
+<div id="density" class="section level3">
+<h3>5.3. density</h3>
+<p>the number of edges in a network divided by the total number of possible edges</p>
+<pre class="r"><code>g.density &lt;- graph.density(temp.graph)
+g.density</code></pre>
+<pre><code>## [1] 2</code></pre>
+</div>
+<div id="the-paths-around-the-network-on-average" class="section level3">
+<h3>5.4. the paths around the network on average</h3>
+<pre class="r"><code>g.pathlength.avg &lt;- average.path.length(temp.graph)
+g.pathlength.avg</code></pre>
+<pre><code>## [1] 1</code></pre>
+</div>
+<div id="centrality" class="section level3">
+<h3>5.5. centrality:</h3>
+<p>how connected is the network? #### 5.5.1. by betweenness: the number of shortest paths from all nodes to all others that pass through that node.</p>
+<pre class="r"><code>betcent &lt;- centralization.betweenness(temp.graph)$centralization
+betcent</code></pre>
+<pre><code>## [1] 0</code></pre>
+<div id="by-degree-the-number-of-edges-a-node-has." class="section level4">
+<h4>5.5.2. by degree: the number of edges a node has.</h4>
+<pre class="r"><code>degcent &lt;- centralization.degree(temp.graph)$centralization
+degcent</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+</div>
+<div id="modularity" class="section level3">
+<h3>5.6. modularity:</h3>
+<p>are nodes connected within their clusters (modules) more than between clusters than they would by chance?</p>
+<pre class="[r}"><code>g.mod&lt;-modularity(edge.betweenness.community(temp.graph))
+g.mod</code></pre>
+</div>
+<div id="effective-size" class="section level3">
+<h3>5.7. effective size:</h3>
+<p>the number of relationships between a node and other unrelated nodes</p>
+<pre class="r"><code>## effective size function ## definite a function like this
 ego.effective.size &lt;- function(g, ego, ...) {
     egonet &lt;- induced.subgraph(g, neighbors(g, ego, ...))
     n &lt;- vcount(egonet)
@@ -420,10 +447,19 @@ effective.size &lt;- function(g, ego = NULL, ...) {
 }
 # calculate average effective size
 efsize_avg &lt;- mean(effective.size(temp.graph, mode = &quot;all&quot;))
-
-# combine them together
-test &lt;- cbind(N_nodes, N_edges, N_clusters, Max_csize, Max_c_edges, 
-    g.density, g.pathlength.avg, betcent, degcent, g.mod, efsize_avg)</code></pre>
+efsize_avg</code></pre>
+<pre><code>## [1] -2</code></pre>
+</div>
+<div id="combine-them-together" class="section level3">
+<h3>5.8. combine them together</h3>
+<pre class="r"><code>test &lt;- cbind(N_nodes, N_edges, N_clusters, Max_csize, Max_c_edges, 
+    g.density, g.pathlength.avg, betcent, degcent, g.mod, efsize_avg)
+test</code></pre>
+<pre><code>##      N_nodes N_edges N_clusters Max_csize Max_c_edges g.density
+## [1,]       5      20          1         5          20         2
+##      g.pathlength.avg betcent degcent g.mod efsize_avg
+## [1,]                1       0       0     0         -2</code></pre>
+</div>
 </div>
 </div>
 
