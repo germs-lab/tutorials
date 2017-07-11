@@ -194,37 +194,69 @@ legend(x=-1.5, y=-1.1, df[, 1], pch=21, col=df$colors, pt.bg=df$colors, pt.cex=2
 ```
 
 ## 5. Basic network stats:
+### 5.1. number of nodes and edges:
 ```{r}
 # number of nodes
 N_nodes<-vcount(temp.graph)
+N_nodes
 # number of edges
 N_edges<-ecount(temp.graph)
+N_edges
+```
 
-# how well do our network cluster?
-g.components <- clusters(temp.graph)
+### 5.2. how well do our network cluster?
+```{r}
 # number of clusters
+g.components <- clusters(temp.graph)
 N_clusters<-g.components$no
+N_clusters
+
 # size of the largest cluster in the network
 Max_csize<-max(g.components$csize)
+Max_csize
+
 # and the number of edges associated with
 Max_c_edges<-ecount(induced.subgraph(temp.graph, which(g.components$membership == which.max(g.components$csize))))
+Max_c_edges
+```
 
-# the number of edges in a network divided by the total number of possible edges
+### 5.3. density
+the number of edges in a network divided by the total number of possible edges
+```{r}
 g.density<-graph.density(temp.graph)
+g.density
+```
 
-# the paths around the network on average
+### 5.4. the paths around the network on average
+```{r}
 g.pathlength.avg<-average.path.length(temp.graph)
+g.pathlength.avg
+```
 
-# centrality: how connected is the network?
-# by betweenness: the number of shortest paths from all nodes to all others that pass through that node.
+### 5.5. centrality: 
+how connected is the network?
+#### 5.5.1. by betweenness: the number of shortest paths from all nodes to all others that pass through that node.
+```{r}
 betcent<-centralization.betweenness(temp.graph)$centralization
-# by degree: the number of edges a node has.
+betcent
+```
+
+#### 5.5.2. by degree: the number of edges a node has.
+```{r}
 degcent<-centralization.degree(temp.graph)$centralization
+degcent
+```
 
-# modularity: are nodes connected within their clusters (modules) more than between clusters than they would by chance?
+### 5.6.  modularity: 
+are nodes connected within their clusters (modules) more than between clusters than they would by chance?
+```[r}
 g.mod<-modularity(edge.betweenness.community(temp.graph))
+g.mod
+```
 
-# effective size: the number of relationships between a node and other unrelated nodes
+### 5.7. effective size: 
+the number of relationships between a node and other unrelated nodes
+```{r}
 ## effective size function ##
 # definite a function like this
 ego.effective.size <- function(g, ego, ...) {
@@ -241,8 +273,12 @@ effective.size <- function(g, ego=NULL, ...) {
 }
 # calculate average effective size
 efsize_avg<-mean(effective.size(temp.graph, mode = "all"))
+efsize_avg
+```
 
-# combine them together
+### 5.8. combine them together
+```{r}
 test<-cbind(N_nodes, N_edges, N_clusters, Max_csize, Max_c_edges, g.density, g.pathlength.avg, betcent, degcent, g.mod, efsize_avg)
+test
 ```
 
